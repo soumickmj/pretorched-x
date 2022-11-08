@@ -10,39 +10,39 @@ __all__ = [
 
 
 def densenet121(**kwargs):
-    model = DenseNet(
+    return DenseNet(
         num_init_features=64,
         growth_rate=32,
         block_config=(6, 12, 24, 16),
-        **kwargs)
-    return model
+        **kwargs
+    )
 
 
 def densenet169(**kwargs):
-    model = DenseNet(
+    return DenseNet(
         num_init_features=64,
         growth_rate=32,
         block_config=(6, 12, 32, 32),
-        **kwargs)
-    return model
+        **kwargs
+    )
 
 
 def densenet201(**kwargs):
-    model = DenseNet(
+    return DenseNet(
         num_init_features=64,
         growth_rate=32,
         block_config=(6, 12, 48, 32),
-        **kwargs)
-    return model
+        **kwargs
+    )
 
 
 def densenet264(**kwargs):
-    model = DenseNet(
+    return DenseNet(
         num_init_features=64,
         growth_rate=32,
         block_config=(6, 12, 64, 48),
-        **kwargs)
-    return model
+        **kwargs
+    )
 
 
 def get_fine_tuning_parameters(model, ft_begin_index):
@@ -51,11 +51,8 @@ def get_fine_tuning_parameters(model, ft_begin_index):
 
     ft_module_names = []
     for i in range(ft_begin_index, 5):
-        ft_module_names.append('denseblock{}'.format(i))
-        ft_module_names.append('transition{}'.format(i))
-    ft_module_names.append('norm5')
-    ft_module_names.append('classifier')
-
+        ft_module_names.extend((f'denseblock{i}', f'transition{i}'))
+    ft_module_names.extend(('norm5', 'classifier'))
     parameters = []
     for k, v in model.named_parameters():
         for ft_module in ft_module_names:
@@ -195,7 +192,7 @@ class DenseNet(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
                 m.weight = nn.init.kaiming_normal(m.weight, mode='fan_out')
-            elif isinstance(m, nn.BatchNorm3d) or isinstance(m, nn.BatchNorm2d):
+            elif isinstance(m, (nn.BatchNorm3d, nn.BatchNorm2d)):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 

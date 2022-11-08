@@ -141,12 +141,9 @@ class FBResNet(nn.Module):
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
-        layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers = [block(self.inplanes, planes, stride, downsample)]
         self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes))
-
+        layers.extend(block(self.inplanes, planes) for _ in range(1, blocks))
         return nn.Sequential(*layers)
 
     def features(self, input):
@@ -180,8 +177,7 @@ def fbresnet18(num_classes=1000):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = FBResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
-    return model
+    return FBResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
 
 
 def fbresnet34(num_classes=1000):
@@ -190,8 +186,7 @@ def fbresnet34(num_classes=1000):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = FBResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
-    return model
+    return FBResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
 
 
 def fbresnet50(num_classes=1000):
@@ -200,8 +195,7 @@ def fbresnet50(num_classes=1000):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = FBResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes)
-    return model
+    return FBResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes)
 
 
 def fbresnet101(num_classes=1000):
@@ -210,8 +204,7 @@ def fbresnet101(num_classes=1000):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = FBResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
-    return model
+    return FBResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
 
 
 def fbresnet152(num_classes=1000, pretrained='imagenet'):
@@ -223,8 +216,10 @@ def fbresnet152(num_classes=1000, pretrained='imagenet'):
     model = FBResNet(Bottleneck, [3, 8, 36, 3], num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['fbresnet152'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
         model.input_size = settings['input_size']

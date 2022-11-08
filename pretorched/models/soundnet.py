@@ -35,8 +35,7 @@ class BranchedSoundNet(nn.Module):
         x_place = self.flatten(F.relu(self.conv8_2(x)))
         x_object = self.last_linear1(x_object)
         x_place = self.last_linear2(x_place)
-        y = [x_object, x_place]
-        return y
+        return [x_object, x_place]
 
 
 class SoundNet(nn.Module):

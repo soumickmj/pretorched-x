@@ -101,8 +101,7 @@ class Stem(nn.Module):
 
         x0 = self.conv2_pool_branch(x)
         x1 = self.conv2_branch(x)
-        out = torch.cat((x0, x1), 1)
-        return out
+        return torch.cat((x0, x1), 1)
 
 
 class BlockA(nn.Module):
@@ -192,8 +191,7 @@ class ReductionA(nn.Module):
         x0 = self.path0(x)
         x1 = self.path1(x)
         x2 = self.path2(x)
-        out = torch.cat((x0, x1, x2), 1)
-        return out
+        return torch.cat((x0, x1, x2), 1)
 
 
 class ReductionB(nn.Module):
@@ -222,8 +220,7 @@ class ReductionB(nn.Module):
         x1 = self.path1(x)
         x2 = self.path2(x)
         x3 = self.path3(x)
-        out = torch.cat((x0, x1, x2, x3), 1)
-        return out
+        return torch.cat((x0, x1, x2, x3), 1)
 
 
 class InceptionResNetBPoly(nn.Module):
@@ -465,9 +462,10 @@ def polynet(num_classes=1000, pretrained='imagenet'):
     """
     if pretrained:
         settings = pretrained_settings['polynet'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            'num_classes should be {}, but is {}'.format(
-                settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
         model = PolyNet(num_classes=num_classes)
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']

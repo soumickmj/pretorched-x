@@ -142,8 +142,7 @@ class FactorizedReduction(nn.Module):
         x_path2 = self.path_2.avgpool(x_path2)
         x_path2 = self.path_2.conv(x_path2)
 
-        out = self.final_path_bn(torch.cat([x_path1, x_path2], 1))
-        return out
+        return self.final_path_bn(torch.cat([x_path1, x_path2], 1))
 
 
 class CellBase(nn.Module):
@@ -172,10 +171,16 @@ class CellBase(nn.Module):
             x_comb_iter_4_right = x_right
         x_comb_iter_4 = x_comb_iter_4_left + x_comb_iter_4_right
 
-        x_out = torch.cat(
-            [x_comb_iter_0, x_comb_iter_1, x_comb_iter_2, x_comb_iter_3,
-             x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [
+                x_comb_iter_0,
+                x_comb_iter_1,
+                x_comb_iter_2,
+                x_comb_iter_3,
+                x_comb_iter_4,
+            ],
+            1,
+        )
 
 
 class CellStem0(CellBase):
@@ -219,8 +224,7 @@ class CellStem0(CellBase):
 
     def forward(self, x_left):
         x_right = self.conv_1x1(x_left)
-        x_out = self.cell_forward(x_left, x_right)
-        return x_out
+        return self.cell_forward(x_left, x_right)
 
 
 class Cell(CellBase):
@@ -284,8 +288,7 @@ class Cell(CellBase):
     def forward(self, x_left, x_right):
         x_left = self.conv_prev_1x1(x_left)
         x_right = self.conv_1x1(x_right)
-        x_out = self.cell_forward(x_left, x_right)
-        return x_out
+        return self.cell_forward(x_left, x_right)
 
 
 class PNASNet5Large(nn.Module):
@@ -352,8 +355,7 @@ class PNASNet5Large(nn.Module):
         x_cell_8 = self.cell_8(x_cell_6, x_cell_7)
         x_cell_9 = self.cell_9(x_cell_7, x_cell_8)
         x_cell_10 = self.cell_10(x_cell_8, x_cell_9)
-        x_cell_11 = self.cell_11(x_cell_9, x_cell_10)
-        return x_cell_11
+        return self.cell_11(x_cell_9, x_cell_10)
 
     def logits(self, features):
         x = self.relu(features)
@@ -376,9 +378,10 @@ def pnasnet5large(num_classes=1000, pretrained='imagenet'):
     """
     if pretrained:
         settings = pretrained_settings['pnasnet5large'][pretrained]
-        assert num_classes == settings[
-            'num_classes'], 'num_classes should be {}, but is {}'.format(
-            settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         # both 'imagenet'&'imagenet+background' are loaded from same parameters
         model = PNASNet5Large(num_classes=1001)

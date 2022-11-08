@@ -57,7 +57,10 @@ def extract_features_targets(model, features_size, loader, path_data, cuda=False
     return features, targets
 
 def train_multilabel(features, targets, classes, train_split, test_split, C=1.0, ignore_hard_examples=True, after_ReLU=False, normalize_L2=False):
-    print('\nHyperparameters:\n - C: {}\n - after_ReLU: {}\n - normL2: {}'.format(C, after_ReLU, normalize_L2))
+    print(
+        f'\nHyperparameters:\n - C: {C}\n - after_ReLU: {after_ReLU}\n - normL2: {normalize_L2}'
+    )
+
     train_APs = []
     test_APs = []
     for class_id in range(len(classes)):
@@ -105,7 +108,7 @@ def train_multilabel(features, targets, classes, train_split, test_split, C=1.0,
         test_AP = average_precision_score(test_y, test_preds) * 100
         test_APs.append(test_AP)
 
-        print('class "{}" ({}/{}):'.format(classes[class_id], test_y.sum(), test_y.shape[0]))
+        print(f'class "{classes[class_id]}" ({test_y.sum()}/{test_y.shape[0]}):')
         print('  - {:8}: acc {:.2f}, AP {:.2f}'.format(train_split, train_acc, train_AP))
         print('  - {:8}: acc {:.2f}, AP {:.2f}'.format(test_split, test_acc, test_AP))
 
@@ -132,10 +135,10 @@ parser.add_argument('--train_split', default='train', type=str, help='')
 parser.add_argument('--test_split', default='val', type=str, help='')
 parser.add_argument('--cuda', const=True, nargs='?', type=bool, help='')
 
-def main ():
+def main():
     global args
     args = parser.parse_args()
-    print('\nCUDA status: {}'.format(args.cuda))
+    print(f'\nCUDA status: {args.cuda}')
 
     print('\nLoad pretrained model on Imagenet')
     model = pretrainedmodels.__dict__[args.arch](num_classes=1000, pretrained='imagenet')
@@ -157,10 +160,10 @@ def main ():
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
     print('\nLoad features')
-    dir_features = os.path.join(args.dir_outputs, 'data/{}'.format(args.arch))
-    path_train_data = '{}/{}set.pth'.format(dir_features, 'train')
-    path_val_data = '{}/{}set.pth'.format(dir_features, 'val')
-    path_test_data = '{}/{}set.pth'.format(dir_features, 'test')
+    dir_features = os.path.join(args.dir_outputs, f'data/{args.arch}')
+    path_train_data = f'{dir_features}/trainset.pth'
+    path_val_data = f'{dir_features}/valset.pth'
+    path_test_data = f'{dir_features}/testset.pth'
 
     features = {}
     targets = {}
@@ -176,7 +179,10 @@ def main ():
     elif args.train_split == 'trainval' and args.test_split == 'test':
         print('\nEvaluation: train a multilabel classifier on trainval/test')
     else:
-        raise ValueError('Trying to train on {} and eval on {}'.format(args.train_split, args.test_split))
+        raise ValueError(
+            f'Trying to train on {args.train_split} and eval on {args.test_split}'
+        )
+
 
     train_multilabel(features, targets, train_set.classes, args.train_split, args.test_split, C=args.C)
 

@@ -95,7 +95,7 @@ class MultiScaleRelation(torch.nn.Module):
         ])
 
         print('Multi-Scale Relation Network Module in use')
-        print(['{}-frame relation'.format(i) for i in self.scales])
+        print([f'{i}-frame relation' for i in self.scales])
 
     def forward(self, input):
         output = []
@@ -155,8 +155,7 @@ class HierarchicalRelation(torch.nn.Module):
             input = torch.stack([relation(input[:, idx, :]) for idx in idx_relations], 1)
             outs.append(linear(input).sum(-2))
         outs.append(self.final_relation(input))
-        out = torch.stack(outs).mean(0)
-        return out
+        return torch.stack(outs).mean(0)
 
 
 class MultiScaleHierarchicalRelation(torch.nn.Module):
@@ -233,15 +232,9 @@ class TRN(nn.Module):
                                                        self.frame_bottleneck_dim)
             self.last_linear = nn.Linear(self.video_feature_dim, self.num_classes)
 
-        print(('Initializing {} with base arch: {}.\n'
-               'Configuration:\n\t'
-               'num_segments:          {}\n\t'
-               'frame_feature_dim:     {}\n\t'
-               'frame_bottleneck_dim:  {}\n\t'
-               'temporal_consensus:    {}\n'
-               .format(self.__class__.__name__, self.arch,
-                       self.num_segments, self.frame_feature_dim,
-                       self.frame_bottleneck_dim, self.consensus)))
+        print(
+            f'Initializing {self.__class__.__name__} with base arch: {self.arch}.\nConfiguration:\n\tnum_segments:          {self.num_segments}\n\tframe_feature_dim:     {self.frame_feature_dim}\n\tframe_bottleneck_dim:  {self.frame_bottleneck_dim}\n\ttemporal_consensus:    {self.consensus}\n'
+        )
 
     def features(self, input):
         # Feature representations from base model
@@ -268,9 +261,9 @@ class TRN(nn.Module):
         :return:
         """
         super().train(mode)
-        count = 0
         if self._enable_pbn:
             print("Freezing BatchNorm2D except the first one.")
+            count = 0
             for m in self.base_model.modules():
                 if isinstance(m, nn.BatchNorm2d):
                     count += 1
@@ -294,7 +287,7 @@ class TRN(nn.Module):
         conv_cnt = 0
         bn_cnt = 0
         for m in self.modules():
-            if isinstance(m, torch.nn.Conv2d) or isinstance(m, torch.nn.Conv1d):
+            if isinstance(m, (torch.nn.Conv2d, torch.nn.Conv1d)):
                 ps = list(m.parameters())
                 conv_cnt += 1
                 if conv_cnt == 1:
@@ -319,8 +312,11 @@ class TRN(nn.Module):
                 if not self._enable_pbn or bn_cnt == 1:
                     bn.extend(list(m.parameters()))
             elif len(m._modules) == 0:
-                if len(list(m.parameters())) > 0:
-                    raise ValueError("New atomic module type: {}. Need to give it a learning policy".format(type(m)))
+                if list(m.parameters()):
+                    raise ValueError(
+                        f"New atomic module type: {type(m)}. Need to give it a learning policy"
+                    )
+
         return [
             {'params': first_conv_weight, 'lr_mult': 1, 'decay_mult': 1, 'name': "first_conv_weight"},
             {'params': first_conv_bias, 'lr_mult': 2, 'decay_mult': 0, 'name': "first_conv_bias"},
@@ -346,8 +342,10 @@ def trn(num_classes=339, num_segments=8, consensus='MSTRN', arch='resnet50',
         pretrained='moments', frame_bottleneck_dim=1024, video_feature_dim=1024):
     if pretrained:
         settings = pretrained_settings['trn'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
         model = TRN(num_classes=num_classes, num_segments=num_segments, arch=arch)
         model.load_state_dict(model_zoo.load_url(settings['url']))
     else:

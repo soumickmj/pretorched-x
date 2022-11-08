@@ -165,17 +165,15 @@ class Slow(nn.Module):
                     stride=(1, stride, stride),
                     bias=False), nn.BatchNorm3d(planes * block.expansion))
 
-        layers = []
-        layers.append(
-            block(
-                self.inplanes,
-                planes,
-                stride,
-                downsample,
-                head_conv=head_conv))
+        layers = [
+            block(self.inplanes, planes, stride, downsample, head_conv=head_conv)
+        ]
+
         self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, head_conv=head_conv))
+        layers.extend(
+            block(self.inplanes, planes, head_conv=head_conv)
+            for _ in range(1, blocks)
+        )
 
         self.inplanes = (
             planes * block.expansion + planes * block.expansion // 8 * 2)
@@ -204,17 +202,15 @@ class SlowOnly(Slow):
                     stride=(1, stride, stride),
                     bias=False), nn.BatchNorm3d(planes * block.expansion))
 
-        layers = []
-        layers.append(
-            block(
-                self.inplanes,
-                planes,
-                stride,
-                downsample,
-                head_conv=head_conv))
+        layers = [
+            block(self.inplanes, planes, stride, downsample, head_conv=head_conv)
+        ]
+
         self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, head_conv=head_conv))
+        layers.extend(
+            block(self.inplanes, planes, head_conv=head_conv)
+            for _ in range(1, blocks)
+        )
 
         self.inplanes = (
             planes * block.expansion)
@@ -296,13 +292,11 @@ class Fast(nn.Module):
                                       padding=(2, 0, 0))
 
     def forward(self, input):
-        lateral = []
         x = self.conv1(input)
         x = self.bn1(x)
         x = self.relu(x)
         pool1 = self.maxpool(x)
-        lateral.append(self.lateral_p1(pool1))
-
+        lateral = [self.lateral_p1(pool1)]
         res2 = self.res2(pool1)
         lateral.append(self.lateral_res2(res2))
 
@@ -328,12 +322,16 @@ class Fast(nn.Module):
                     stride=(1, stride, stride),
                     bias=False), nn.BatchNorm3d(planes * block.expansion))
 
-        layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample,
-                            head_conv=head_conv))
+        layers = [
+            block(self.inplanes, planes, stride, downsample, head_conv=head_conv)
+        ]
+
         self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, head_conv=head_conv))
+        layers.extend(
+            block(self.inplanes, planes, head_conv=head_conv)
+            for _ in range(1, blocks)
+        )
+
         return nn.Sequential(*layers)
 
 
@@ -505,14 +503,12 @@ class SlowFastV0(nn.Module):
         return x
 
     def fast_path(self, input):
-        lateral = []
         x = self.fast_conv1(input)
         x = self.fast_bn1(x)
         x = self.fast_relu(x)
         pool1 = self.fast_maxpool(x)
         lateral_p = self.lateral_p1(pool1)
-        lateral.append(lateral_p)
-
+        lateral = [lateral_p]
         res2 = self.fast_res2(pool1)
         lateral_res2 = self.lateral_res2(res2)
         lateral.append(lateral_res2)
@@ -542,13 +538,18 @@ class SlowFastV0(nn.Module):
                     stride=(1, stride, stride),
                     bias=False), nn.BatchNorm3d(planes * block.expansion))
 
-        layers = []
-        layers.append(block(self.fast_inplanes, planes, stride, downsample,
-                            head_conv=head_conv))
+        layers = [
+            block(
+                self.fast_inplanes, planes, stride, downsample, head_conv=head_conv
+            )
+        ]
+
         self.fast_inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.fast_inplanes, planes,
-                                head_conv=head_conv))
+        layers.extend(
+            block(self.fast_inplanes, planes, head_conv=head_conv)
+            for _ in range(1, blocks)
+        )
+
         return nn.Sequential(*layers)
 
     def _make_layer_slow(self, block, planes, blocks, stride=1, head_conv=1):
@@ -562,13 +563,17 @@ class SlowFastV0(nn.Module):
                     stride=(1, stride, stride),
                     bias=False), nn.BatchNorm3d(planes * block.expansion))
 
-        layers = []
-        layers.append(block(self.slow_inplanes, planes, stride, downsample,
-                            head_conv=head_conv))
+        layers = [
+            block(
+                self.slow_inplanes, planes, stride, downsample, head_conv=head_conv
+            )
+        ]
+
         self.slow_inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.slow_inplanes, planes,
-                                head_conv=head_conv))
+        layers.extend(
+            block(self.slow_inplanes, planes, head_conv=head_conv)
+            for _ in range(1, blocks)
+        )
 
         self.slow_inplanes = (
             planes * block.expansion + planes * block.expansion // 8 * 2)
@@ -594,22 +599,19 @@ def resnet50(mode='SF', **kwargs):
 def resnet101(**kwargs):
     """Constructs a ResNet-101 model.
     """
-    model = SlowFast(Bottleneck, [3, 4, 23, 3], **kwargs)
-    return model
+    return SlowFast(Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
 def resnet152(**kwargs):
     """Constructs a ResNet-101 model.
     """
-    model = SlowFast(Bottleneck, [3, 8, 36, 3], **kwargs)
-    return model
+    return SlowFast(Bottleneck, [3, 8, 36, 3], **kwargs)
 
 
 def resnet200(**kwargs):
     """Constructs a ResNet-101 model.
     """
-    model = SlowFast(Bottleneck, [3, 24, 36, 3], **kwargs)
-    return model
+    return SlowFast(Bottleneck, [3, 24, 36, 3], **kwargs)
 
 
 if __name__ == "__main__":

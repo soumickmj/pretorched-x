@@ -41,11 +41,10 @@ class SpatialCrossMapLRN(nn.Module):
         if self.ACROSS_CHANNELS:
             div = x.pow(2).unsqueeze(1)
             div = self.average(div).squeeze(1)
-            div = div.mul(self.alpha).add(self.k).pow(self.beta)
         else:
             div = x.pow(2)
             div = self.average(div)
-            div = div.mul(self.alpha).add(self.k).pow(self.beta)
+        div = div.mul(self.alpha).add(self.k).pow(self.beta)
         x = x.div(div)
         return x
 
@@ -55,10 +54,8 @@ class LambdaBase(nn.Sequential):
         self.lambda_func = fn
 
     def forward_prepare(self, input):
-        output = []
-        for module in self._modules.values():
-            output.append(module(input))
-        return output if output else input
+        output = [module(input) for module in self._modules.values()]
+        return output or input
 
 class Lambda(LambdaBase):
     def forward(self, input):
@@ -105,8 +102,10 @@ class VGGM(nn.Module):
 def vggm(num_classes=1000, pretrained='imagenet'):
     if pretrained:
         settings = pretrained_settings['vggm'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model = VGGM(num_classes=1000)
         model.load_state_dict(model_zoo.load_url(settings['url']))

@@ -14,29 +14,38 @@ model_urls = {
 
 def define_model(params):
     def conv2d(input, params, base, stride=1, pad=0):
-        return F.conv2d(input, params[base + '.weight'],
-                        params[base + '.bias'], stride, pad)
+        return F.conv2d(
+            input,
+            params[f'{base}.weight'],
+            params[f'{base}.bias'],
+            stride,
+            pad,
+        )
+
 
     def group(input, params, base, stride, n):
         o = input
-        for i in range(0,n):
+        for i in range(n):
             b_base = ('%s.block%d.conv') % (base, i)
             x = o
-            o = conv2d(x, params, b_base + '0')
+            o = conv2d(x, params, f'{b_base}0')
             o = F.relu(o)
-            o = conv2d(o, params, b_base + '1', stride=i==0 and stride or 1, pad=1)
+            o = conv2d(o, params, f'{b_base}1', stride=i==0 and stride or 1, pad=1)
             o = F.relu(o)
-            o = conv2d(o, params, b_base + '2')
-            if i == 0:
-                o += conv2d(x, params, b_base + '_dim', stride=stride)
-            else:
-                o += x
+            o = conv2d(o, params, f'{b_base}2')
+            o += conv2d(x, params, f'{b_base}_dim', stride=stride) if i == 0 else x
             o = F.relu(o)
         return o
 
     # determine network size by parameters
-    blocks = [sum([re.match('group%d.block\d+.conv0.weight'%j, k) is not None
-                   for k in params.keys()]) for j in range(4)]
+    blocks = [
+        sum(
+            re.match('group%d.block\d+.conv0.weight' % j, k) is not None
+            for k in params.keys()
+        )
+        for j in range(4)
+    ]
+
 
     def f(input, params, pooling_classif=True):
         o = F.conv2d(input, params['conv0.weight'], params['conv0.bias'], 2, 3)
@@ -77,10 +86,9 @@ def wideresnet50(pooling):
             print(k, v.shape)
             params[k] = Variable(torch.from_numpy(v), requires_grad=True)
     else:
-        os.system('mkdir -p ' + dir_models)
-        os.system('wget {} -O {}'.format(model_urls['wideresnet50'], path_hkl))
+        os.system(f'mkdir -p {dir_models}')
+        os.system(f"wget {model_urls['wideresnet50']} -O {path_hkl}")
     f = define_model(params)
-    model = WideResNet(pooling)
-    return model
+    return WideResNet(pooling)
 
 

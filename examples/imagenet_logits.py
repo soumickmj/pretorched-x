@@ -65,7 +65,7 @@ def main():
     class_key = class_id_to_key[class_id]
     classname = key_to_classname[class_key]
 
-    print("'{}': '{}' is a '{}'".format(args.arch, path_img, classname))
+    print(f"'{args.arch}': '{path_img}' is a '{classname}'")
 
 if __name__ == '__main__':
     main()

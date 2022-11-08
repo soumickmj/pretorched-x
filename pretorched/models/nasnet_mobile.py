@@ -202,8 +202,9 @@ class CellStem0(nn.Module):
         x_comb_iter_4_right = self.comb_iter_4_right(x1)
         x_comb_iter_4 = x_comb_iter_4_left + x_comb_iter_4_right
 
-        x_out = torch.cat([x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1
+        )
 
 
 class CellStem1(nn.Module):
@@ -278,8 +279,9 @@ class CellStem1(nn.Module):
         x_comb_iter_4_right = self.comb_iter_4_right(x_left)
         x_comb_iter_4 = x_comb_iter_4_left + x_comb_iter_4_right
 
-        x_out = torch.cat([x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1
+        )
 
 
 class FirstCell(nn.Module):
@@ -347,8 +349,17 @@ class FirstCell(nn.Module):
         x_comb_iter_4_left = self.comb_iter_4_left(x_right)
         x_comb_iter_4 = x_comb_iter_4_left + x_right
 
-        x_out = torch.cat([x_left, x_comb_iter_0, x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [
+                x_left,
+                x_comb_iter_0,
+                x_comb_iter_1,
+                x_comb_iter_2,
+                x_comb_iter_3,
+                x_comb_iter_4,
+            ],
+            1,
+        )
 
 
 class NormalCell(nn.Module):
@@ -400,8 +411,17 @@ class NormalCell(nn.Module):
         x_comb_iter_4_left = self.comb_iter_4_left(x_right)
         x_comb_iter_4 = x_comb_iter_4_left + x_right
 
-        x_out = torch.cat([x_left, x_comb_iter_0, x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [
+                x_left,
+                x_comb_iter_0,
+                x_comb_iter_1,
+                x_comb_iter_2,
+                x_comb_iter_3,
+                x_comb_iter_4,
+            ],
+            1,
+        )
 
 
 class ReductionCell0(nn.Module):
@@ -455,8 +475,9 @@ class ReductionCell0(nn.Module):
         x_comb_iter_4_right = self.comb_iter_4_right(x_right)
         x_comb_iter_4 = x_comb_iter_4_left + x_comb_iter_4_right
 
-        x_out = torch.cat([x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1
+        )
 
 
 class ReductionCell1(nn.Module):
@@ -513,8 +534,9 @@ class ReductionCell1(nn.Module):
         x_comb_iter_4_right = self.comb_iter_4_right(x_right)
         x_comb_iter_4 = x_comb_iter_4_left + x_comb_iter_4_right
 
-        x_out = torch.cat([x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1)
-        return x_out
+        return torch.cat(
+            [x_comb_iter_1, x_comb_iter_2, x_comb_iter_3, x_comb_iter_4], 1
+        )
 
 
 class NASNetAMobile(nn.Module):
@@ -598,8 +620,7 @@ class NASNetAMobile(nn.Module):
         x_cell_12 = self.cell_12(x_reduction_cell_1, x_cell_9)
         x_cell_13 = self.cell_13(x_cell_12, x_reduction_cell_1)
         x_cell_14 = self.cell_14(x_cell_13, x_cell_12)
-        x_cell_15 = self.cell_15(x_cell_14, x_cell_13)
-        return x_cell_15
+        return self.cell_15(x_cell_14, x_cell_13)
 
     def logits(self, features):
         x = self.relu(features)
@@ -621,34 +642,30 @@ def nasnetamobile(num_classes=1000, pretrained='imagenet'):
     """
     if pretrained:
         settings = pretrained_settings['nasnetamobile'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         # both 'imagenet'&'imagenet+background' are loaded from same parameters
         model = NASNetAMobile(num_classes=num_classes)
         model.load_state_dict(model_zoo.load_url(settings['url'], map_location=None))
 
+    else:
+        settings = pretrained_settings['nasnetamobile']['imagenet']
+        model = NASNetAMobile(num_classes=num_classes)
+    model.std = settings['std']
+    model.mean = settings['mean']
+    model.input_range = settings['input_range']
+
+    model.input_size = settings['input_size']
        # if pretrained == 'imagenet':
        #     new_last_linear = nn.Linear(model.last_linear.in_features, 1000)
        #     new_last_linear.weight.data = model.last_linear.weight.data[1:]
        #     new_last_linear.bias.data = model.last_linear.bias.data[1:]
        #     model.last_linear = new_last_linear
 
-        model.input_space = settings['input_space']
-        model.input_size = settings['input_size']
-        model.input_range = settings['input_range']
-
-        model.mean = settings['mean']
-        model.std = settings['std']
-    else:
-        settings = pretrained_settings['nasnetamobile']['imagenet']
-        model = NASNetAMobile(num_classes=num_classes)
-        model.input_space = settings['input_space']
-        model.input_size = settings['input_size']
-        model.input_range = settings['input_range']
-
-        model.mean = settings['mean']
-        model.std = settings['std']
+    model.input_space = settings['input_space']
     return model
 
 

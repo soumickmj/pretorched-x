@@ -137,8 +137,7 @@ class _NonLocalBlockND(nn.Module):
         """
 
         func = getattr(self, f'_{self.mode}')
-        output = func(x)
-        return output
+        return func(x)
 
     def _embedded_gaussian(self, x):
         batch_size = x.size(0)
@@ -161,9 +160,7 @@ class _NonLocalBlockND(nn.Module):
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])
         W_y = self.W(y)
-        z = W_y + x
-
-        return z
+        return W_y + x
 
     def _gaussian(self, x):
         batch_size = x.size(0)
@@ -185,9 +182,7 @@ class _NonLocalBlockND(nn.Module):
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])
         W_y = self.W(y)
-        z = W_y + x
-
-        return z
+        return W_y + x
 
     def _dot_product(self, x):
         batch_size = x.size(0)
@@ -206,9 +201,7 @@ class _NonLocalBlockND(nn.Module):
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])
         W_y = self.W(y)
-        z = W_y + x
-
-        return z
+        return W_y + x
 
     def _concatenation(self, x):
         batch_size = x.size(0)
@@ -238,9 +231,7 @@ class _NonLocalBlockND(nn.Module):
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])
         W_y = self.W(y)
-        z = W_y + x
-
-        return z
+        return W_y + x
 
 
 class NonLocalBlock1D(_NonLocalBlockND):
@@ -474,7 +465,7 @@ class NonLocalResNet3D(nn.Module):
         nonlocal_freq = blocks // nonlocal_blocks if nonlocal_blocks != 0 else -1
 
         layers = []
-        for i in range(0, blocks):
+        for i in range(blocks):
             layers.append(block(self.inplanes, planes, stride=stride, downsample=downsample,
                                 nonlocal_layer=(i % nonlocal_freq == 0 and nonlocal_freq > 0)))
             if i == 0:
@@ -512,9 +503,7 @@ def get_fine_tuning_parameters(model, ft_begin_index):
     if ft_begin_index == 0:
         return model.parameters()
 
-    ft_module_names = []
-    for i in range(ft_begin_index, 5):
-        ft_module_names.append('layer{}'.format(i))
+    ft_module_names = [f'layer{i}' for i in range(ft_begin_index, 5)]
     ft_module_names.append('last_linear')
 
     parameters = []
@@ -532,22 +521,19 @@ def get_fine_tuning_parameters(model, ft_begin_index):
 def nonlocalresnet3d(**kwargs):
     """Constructs a ResNet-18 model.
     """
-    model = NonLocalResNet3D(NonLocalBasicBlock, [1, 1, 1, 1], **kwargs)
-    return model
+    return NonLocalResNet3D(NonLocalBasicBlock, [1, 1, 1, 1], **kwargs)
 
 
 def nonlocalresnet3d18(**kwargs):
     """Constructs a NonLocalResNet3D-18 model.
     """
-    model = NonLocalResNet3D(NonLocalBasicBlock, [2, 2, 2, 2], **kwargs)
-    return model
+    return NonLocalResNet3D(NonLocalBasicBlock, [2, 2, 2, 2], **kwargs)
 
 
 def nonlocalresnet3d34(**kwargs):
     """Constructs a NonLocalResNet3D-34 model.
     """
-    model = NonLocalResNet3D(NonLocalBasicBlock, [3, 4, 6, 3], **kwargs)
-    return model
+    return NonLocalResNet3D(NonLocalBasicBlock, [3, 4, 6, 3], **kwargs)
 
 
 def nonlocalresnet3d50(num_classes=339, num_nonlocal_blocks=5, pretrained='kinetics-400', **kwargs):
@@ -573,22 +559,19 @@ def nonlocalresnet3d50(num_classes=339, num_nonlocal_blocks=5, pretrained='kinet
 def nonlocalresnet3d101(**kwargs):
     """Constructs a NonLocalResNet3D-101 model.
     """
-    model = NonLocalResNet3D(NonLocalBottleneck, [3, 4, 23, 3], **kwargs)
-    return model
+    return NonLocalResNet3D(NonLocalBottleneck, [3, 4, 23, 3], **kwargs)
 
 
 def nonlocalresnet3d152(**kwargs):
     """Constructs a NonLocalResNet3D-101 model.
     """
-    model = NonLocalResNet3D(NonLocalBottleneck, [3, 8, 36, 3], **kwargs)
-    return model
+    return NonLocalResNet3D(NonLocalBottleneck, [3, 8, 36, 3], **kwargs)
 
 
 def nonlocalresnet3d200(**kwargs):
     """Constructs a NonLocalResNet3D-200 model.
     """
-    model = NonLocalResNet3D(NonLocalBottleneck, [3, 24, 36, 3], **kwargs)
-    return model
+    return NonLocalResNet3D(NonLocalBottleneck, [3, 24, 36, 3], **kwargs)
 
 
 if __name__ == '__main__':

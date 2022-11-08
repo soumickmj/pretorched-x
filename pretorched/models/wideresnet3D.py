@@ -151,12 +151,9 @@ class WideResNet(nn.Module):
                         stride=stride,
                         bias=False), nn.BatchNorm3d(planes * block.expansion))
 
-        layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers = [block(self.inplanes, planes, stride, downsample)]
         self.inplanes = planes * block.expansion
-        for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes))
-
+        layers.extend(block(self.inplanes, planes) for _ in range(1, blocks))
         return nn.Sequential(*layers)
 
     def forward(self, x):
@@ -182,9 +179,7 @@ def get_fine_tuning_parameters(model, ft_begin_index):
     if ft_begin_index == 0:
         return model.parameters()
 
-    ft_module_names = []
-    for i in range(ft_begin_index, 5):
-        ft_module_names.append('layer{}'.format(i))
+    ft_module_names = [f'layer{i}' for i in range(ft_begin_index, 5)]
     ft_module_names.append('fc')
 
     parameters = []

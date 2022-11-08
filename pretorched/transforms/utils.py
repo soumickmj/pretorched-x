@@ -69,16 +69,19 @@ class TransformImage(object):
         if random_vflip:
             tfs.append(transforms.RandomVerticalFlip())
 
-        tfs.append(transforms.ToTensor())
-        tfs.append(ToSpaceBGR(self.input_space=='BGR'))
-        tfs.append(ToRange255(max(self.input_range)==255))
-        tfs.append(transforms.Normalize(mean=self.mean, std=self.std))
+        tfs.extend(
+            (
+                transforms.ToTensor(),
+                ToSpaceBGR(self.input_space == 'BGR'),
+                ToRange255(max(self.input_range) == 255),
+                transforms.Normalize(mean=self.mean, std=self.std),
+            )
+        )
 
         self.tf = transforms.Compose(tfs)
 
     def __call__(self, img):
-        tensor = self.tf(img)
-        return tensor
+        return self.tf(img)
 
 
 class LoadImage(object):
@@ -101,8 +104,7 @@ class LoadTransformImage(object):
 
     def __call__(self, path_img):
         img = self.load(path_img)
-        tensor = self.tf(img)
-        return tensor
+        return self.tf(img)
 
 
 class Identity(nn.Module):

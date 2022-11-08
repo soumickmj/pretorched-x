@@ -73,7 +73,7 @@ if __name__ == '__main__':
     print('Display inputs/outputs')
 
     def print_info(self, input, output):
-        print('Inside '+ self.__class__.__name__+ ' forward')
+        print(f'Inside {self.__class__.__name__} forward')
         print('input size', input[0].size())
         print('output size', output.data.size())
         print('')
@@ -178,8 +178,12 @@ if __name__ == '__main__':
         global layer_id
 
         for i in range(10):#output.data.size(1)):
-            path_img_output = os.path.join(dir_activations, 'layer{}_{}_channel{}.png'.format(layer_id, self.__class__.__name__, i))
-            print('save output activation to ' + path_img_output)
+            path_img_output = os.path.join(
+                dir_activations,
+                f'layer{layer_id}_{self.__class__.__name__}_channel{i}.png',
+            )
+
+            print(f'save output activation to {path_img_output}')
             torchvision.utils.save_image(output.data.squeeze(0)[i], path_img_output) # save image (of type Tensor) using torchvision
 
         layer_id += 1

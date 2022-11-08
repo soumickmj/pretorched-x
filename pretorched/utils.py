@@ -29,13 +29,14 @@ class cache(object):
 
 def lazy_property(fn):
     """Decorator that makes a property lazy-evaluated."""
-    attr_name = '_' + fn.__name__
+    attr_name = f'_{fn.__name__}'
 
     @property
     def _lazy_property(self):
         if not hasattr(self, attr_name):
             setattr(self, attr_name, fn(self))
         return getattr(self, attr_name)
+
     return _lazy_property
 
 
@@ -58,13 +59,12 @@ class HTML(object):
     @staticmethod
     def element(elem, inner='', id_='', cls_='', attr=''):
         if id_ != '':
-            id_ = ' id="{}"'.format(id_)
+            id_ = f' id="{id_}"'
         if cls_ is not '':
-            cls_ = ' class="{}"'.format(cls_)
+            cls_ = f' class="{cls_}"'
         if attr is not '':
-            attr = ' {}'.format(attr)
-        return ('<{}{}{}{}>{}</{}>'
-                .format(elem, id_, cls_, attr, inner, elem))
+            attr = f' {attr}'
+        return f'<{elem}{id_}{cls_}{attr}>{inner}</{elem}>'
 
     @staticmethod
     def div(inner='', id_='', cls_='', attr=''):
@@ -88,27 +88,53 @@ class HTML(object):
 
     @staticmethod
     def img(src=''):
-        return HTML.element('img', attr='src="{}"'.format(src))
+        return HTML.element('img', attr=f'src="{src}"')
 
     @staticmethod
     def video(src='', preload='auto', onmouseover='this.play();',
               onmouseout='this.pause();', style=''):
-        return HTML.element('video', attr='src="{}" onmouseover="{}" onmouseout="{}" style="{}"'
-                            .format(src, onmouseover, onmouseout, style))
+        return HTML.element(
+            'video',
+            attr=f'src="{src}" onmouseover="{onmouseover}" onmouseout="{onmouseout}" style="{style}"',
+        )
 
     @staticmethod
     def a(inner='', href='', data_toggle=''):
-        return HTML.element('a', inner=inner, attr='href="{}" data-toggle="{}"'.format(href, data_toggle))
+        return HTML.element(
+            'a', inner=inner, attr=f'href="{href}" data-toggle="{data_toggle}"'
+        )
 
     @staticmethod
     def panel(label, category, li):
-        return HTML.div(cls_='panel panel-default', inner='\n'.join([
-            HTML.div(cls_='panel-heading',
-                     inner=HTML.element('h4', cls_="panel-title",
-                                        inner=HTML.a(data_toggle='collapse', href='#{}'.format(label),
-                                                     inner='{} (n={})'.format(category, len(li))))),
-            HTML.div(id_='{}'.format(label), cls_='panel-collapse collapse',
-                     inner=HTML.ul(HTML.li, ul_class='list-group', li_class='list-group-item', li_attr="style=\"overflow: auto;\""))]))
+        return HTML.div(
+            cls_='panel panel-default',
+            inner='\n'.join(
+                [
+                    HTML.div(
+                        cls_='panel-heading',
+                        inner=HTML.element(
+                            'h4',
+                            cls_="panel-title",
+                            inner=HTML.a(
+                                data_toggle='collapse',
+                                href=f'#{label}',
+                                inner=f'{category} (n={len(li)})',
+                            ),
+                        ),
+                    ),
+                    HTML.div(
+                        id_=f'{label}',
+                        cls_='panel-collapse collapse',
+                        inner=HTML.ul(
+                            HTML.li,
+                            ul_class='list-group',
+                            li_class='list-group-item',
+                            li_attr="style=\"overflow: auto;\"",
+                        ),
+                    ),
+                ]
+            ),
+        )
 
     @staticmethod
     def panel_group(html):

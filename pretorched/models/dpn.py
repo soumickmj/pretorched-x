@@ -102,8 +102,10 @@ def dpn68(num_classes=1000, pretrained='imagenet'):
         num_classes=num_classes, test_time_pool=True)
     if pretrained:
         settings = pretrained_settings['dpn68'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
@@ -120,8 +122,10 @@ def dpn68b(num_classes=1000, pretrained='imagenet+5k'):
         num_classes=num_classes, test_time_pool=True)
     if pretrained:
         settings = pretrained_settings['dpn68b'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
@@ -138,8 +142,10 @@ def dpn92(num_classes=1000, pretrained='imagenet+5k'):
         num_classes=num_classes, test_time_pool=True)
     if pretrained:
         settings = pretrained_settings['dpn92'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
@@ -156,8 +162,10 @@ def dpn98(num_classes=1000, pretrained='imagenet'):
         num_classes=num_classes, test_time_pool=True)
     if pretrained:
         settings = pretrained_settings['dpn98'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
@@ -174,8 +182,10 @@ def dpn131(num_classes=1000, pretrained='imagenet'):
         num_classes=num_classes, test_time_pool=True)
     if pretrained:
         settings = pretrained_settings['dpn131'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
@@ -192,8 +202,10 @@ def dpn107(num_classes=1000, pretrained='imagenet+5k'):
         num_classes=num_classes, test_time_pool=True)
     if pretrained:
         settings = pretrained_settings['dpn107'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
@@ -285,10 +297,7 @@ class DualPathBlock(nn.Module):
     def forward(self, x):
         x_in = torch.cat(x, dim=1) if isinstance(x, tuple) else x
         if self.has_proj:
-            if self.key_stride == 2:
-                x_s = self.c1x1_w_s2(x_in)
-            else:
-                x_s = self.c1x1_w_s1(x_in)
+            x_s = self.c1x1_w_s2(x_in) if self.key_stride == 2 else self.c1x1_w_s1(x_in)
             x_s1 = x_s[:, :self.num_1x1_c, :, :]
             x_s2 = x_s[:, self.num_1x1_c:, :, :]
         else:
@@ -333,7 +342,10 @@ class DPN(nn.Module):
         blocks['conv2_1'] = DualPathBlock(num_init_features, r, r, bw, inc, groups, 'proj', b)
         in_chs = bw + 3 * inc
         for i in range(2, k_sec[0] + 1):
-            blocks['conv2_' + str(i)] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
+            blocks[f'conv2_{str(i)}'] = DualPathBlock(
+                in_chs, r, r, bw, inc, groups, 'normal', b
+            )
+
             in_chs += inc
 
         # conv3
@@ -343,7 +355,10 @@ class DPN(nn.Module):
         blocks['conv3_1'] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'down', b)
         in_chs = bw + 3 * inc
         for i in range(2, k_sec[1] + 1):
-            blocks['conv3_' + str(i)] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
+            blocks[f'conv3_{str(i)}'] = DualPathBlock(
+                in_chs, r, r, bw, inc, groups, 'normal', b
+            )
+
             in_chs += inc
 
         # conv4
@@ -353,7 +368,10 @@ class DPN(nn.Module):
         blocks['conv4_1'] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'down', b)
         in_chs = bw + 3 * inc
         for i in range(2, k_sec[2] + 1):
-            blocks['conv4_' + str(i)] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
+            blocks[f'conv4_{str(i)}'] = DualPathBlock(
+                in_chs, r, r, bw, inc, groups, 'normal', b
+            )
+
             in_chs += inc
 
         # conv5
@@ -363,7 +381,10 @@ class DPN(nn.Module):
         blocks['conv5_1'] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'down', b)
         in_chs = bw + 3 * inc
         for i in range(2, k_sec[3] + 1):
-            blocks['conv5_' + str(i)] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
+            blocks[f'conv5_{str(i)}'] = DualPathBlock(
+                in_chs, r, r, bw, inc, groups, 'normal', b
+            )
+
             in_chs += inc
         blocks['conv5_bn_ac'] = CatBnAct(in_chs)
 
@@ -422,7 +443,10 @@ def adaptive_avgmax_pool2d(x, pool_type='avg', padding=0, count_include_pad=Fals
         x = F.max_pool2d(x, kernel_size=(x.size(2), x.size(3)), padding=padding)
     else:
         if pool_type != 'avg':
-            print('Invalid pool type %s specified. Defaulting to average pooling.' % pool_type)
+            print(
+                f'Invalid pool type {pool_type} specified. Defaulting to average pooling.'
+            )
+
         x = F.avg_pool2d(
             x, kernel_size=(x.size(2), x.size(3)), padding=padding, count_include_pad=count_include_pad)
     return x
@@ -435,13 +459,16 @@ class AdaptiveAvgMaxPool2d(torch.nn.Module):
         super(AdaptiveAvgMaxPool2d, self).__init__()
         self.output_size = output_size
         self.pool_type = pool_type
-        if pool_type == 'avgmaxc' or pool_type == 'avgmax':
+        if pool_type in ['avgmaxc', 'avgmax']:
             self.pool = nn.ModuleList([nn.AdaptiveAvgPool2d(output_size), nn.AdaptiveMaxPool2d(output_size)])
         elif pool_type == 'max':
             self.pool = nn.AdaptiveMaxPool2d(output_size)
         else:
             if pool_type != 'avg':
-                print('Invalid pool type %s specified. Defaulting to average pooling.' % pool_type)
+                print(
+                    f'Invalid pool type {pool_type} specified. Defaulting to average pooling.'
+                )
+
             self.pool = nn.AdaptiveAvgPool2d(output_size)
 
     def forward(self, x):
@@ -457,6 +484,4 @@ class AdaptiveAvgMaxPool2d(torch.nn.Module):
         return pooling_factor(self.pool_type)
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' \
-               + 'output_size=' + str(self.output_size) \
-               + ', pool_type=' + self.pool_type + ')'
+        return f'{self.__class__.__name__} (output_size={str(self.output_size)}, pool_type={self.pool_type})'
