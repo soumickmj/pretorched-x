@@ -102,44 +102,37 @@ class PreActivationResNet3D(resnet3D.ResNet3D):
 
 def preact_resnet3d10(**kwargs):
     """Constructs a ResNet-10 model."""
-    model = PreActivationResNet3D(PreActivationBasicBlock, [1, 1, 1, 1], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBasicBlock, [1, 1, 1, 1], **kwargs)
 
 
 def preact_resnet3d18(**kwargs):
     """Constructs a ResNet-18 model."""
-    model = PreActivationResNet3D(PreActivationBasicBlock, [2, 2, 2, 2], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBasicBlock, [2, 2, 2, 2], **kwargs)
 
 
 def preact_resnet3d34(**kwargs):
     """Constpreact_ructs a ResNet-34 model."""
-    model = PreActivationResNet3D(PreActivationBasicBlock, [3, 4, 6, 3], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBasicBlock, [3, 4, 6, 3], **kwargs)
 
 
 def preact_resnet3d50(**kwargs):
     """Constructs a ResNet-50 model."""
-    model = PreActivationResNet3D(PreActivationBottleneck, [3, 4, 6, 3], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBottleneck, [3, 4, 6, 3], **kwargs)
 
 
 def preact_resnet3d101(**kwargs):
     """Constructs a ResNet-101 model."""
-    model = PreActivationResNet3D(PreActivationBottleneck, [3, 4, 23, 3], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBottleneck, [3, 4, 23, 3], **kwargs)
 
 
 def preact_resnet3d152(**kwargs):
     """Constructs a ResNet-101 model."""
-    model = PreActivationResNet3D(PreActivationBottleneck, [3, 8, 36, 3], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBottleneck, [3, 8, 36, 3], **kwargs)
 
 
 def preact_resnet3d200(**kwargs):
     """Constructs a ResNet-101 model."""
-    model = PreActivationResNet3D(PreActivationBottleneck, [3, 24, 36, 3], **kwargs)
-    return model
+    return PreActivationResNet3D(PreActivationBottleneck, [3, 24, 36, 3], **kwargs)
 
 
 if __name__ == '__main__':

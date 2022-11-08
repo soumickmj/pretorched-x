@@ -480,8 +480,15 @@ class BNInception(nn.Module):
         inception_5b_pool_proj_out = self.inception_5b_pool_proj(inception_5b_pool_out)
         inception_5b_pool_proj_bn_out = self.inception_5b_pool_proj_bn(inception_5b_pool_proj_out)
         inception_5b_relu_pool_proj_out = self.inception_5b_relu_pool_proj(inception_5b_pool_proj_bn_out)
-        inception_5b_output_out = torch.cat([inception_5b_1x1_bn_out,inception_5b_3x3_bn_out,inception_5b_double_3x3_2_bn_out,inception_5b_pool_proj_bn_out], 1)
-        return inception_5b_output_out
+        return torch.cat(
+            [
+                inception_5b_1x1_bn_out,
+                inception_5b_3x3_bn_out,
+                inception_5b_double_3x3_2_bn_out,
+                inception_5b_pool_proj_bn_out,
+            ],
+            1,
+        )
 
     def logits(self, features):
         x = self.global_pool(features)
@@ -500,8 +507,10 @@ def bninception(num_classes=1000, pretrained='imagenet'):
     model = BNInception(num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['bninception'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
         model.input_size = settings['input_size']

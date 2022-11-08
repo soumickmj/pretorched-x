@@ -94,50 +94,43 @@ class MVResNet(resnet3D.ResNet3D):
 def mvresnet10(**kwargs):
     """Constructs a MVResNet-10 model.
     """
-    model = MVResNet(BasicBlock, [1, 1, 1, 1], **kwargs)
-    return model
+    return MVResNet(BasicBlock, [1, 1, 1, 1], **kwargs)
 
 
 def mvresnet18(**kwargs):
     """Constructs a MVResNet-18 model.
     """
-    model = MVResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    return model
+    return MVResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
 
 
 def mvresnet34(**kwargs):
     """Constructs a MVResNet-34 model.
     """
-    model = MVResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
-    return model
+    return MVResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
 
 
 def mvresnet50(**kwargs):
     """Constructs a MVResNet-50 model.
     """
-    model = MVResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    return model
+    return MVResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
 def mvresnet101(**kwargs):
     """Constructs a MVResNet-101 model.
     """
-    model = MVResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-    return model
+    return MVResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
 def mvresnet152(**kwargs):
     """Constructs a MVResNet-101 model.
     """
-    model = MVResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
-    return model
+    return MVResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
 
 
 def mvresnet200(**kwargs):
     """Constructs a MVResNet-200 model.
     """
-    model = MVResNet(Bottleneck, [3, 24, 36, 3], **kwargs)
-    return model
+    return MVResNet(Bottleneck, [3, 24, 36, 3], **kwargs)
 
 
 if __name__ == '__main__':

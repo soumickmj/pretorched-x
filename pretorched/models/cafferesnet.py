@@ -133,12 +133,9 @@ class ResNet(nn.Module):
         nn.BatchNorm2d(planes * block.expansion),
       )
 
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
+    layers = [block(self.inplanes, planes, stride, downsample)]
     self.inplanes = planes * block.expansion
-    for i in range(1, blocks):
-      layers.append(block(self.inplanes, planes))
-
+    layers.extend(block(self.inplanes, planes) for _ in range(1, blocks))
     return nn.Sequential(*layers)
 
   def forward(self, x):
@@ -160,19 +157,20 @@ class ResNet(nn.Module):
 
 
 def cafferesnet101(num_classes=1000, pretrained='imagenet'):
-    """Constructs a ResNet-101 model.
+  """Constructs a ResNet-101 model.
     Args:
     pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
-    if pretrained is not None:
-        settings = pretrained_settings['cafferesnet101'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
-        model.load_state_dict(model_zoo.load_url(settings['url']))
-        model.input_space = settings['input_space']
-        model.input_size = settings['input_size']
-        model.input_range = settings['input_range']
-        model.mean = settings['mean']
-        model.std = settings['std']
-    return model
+  model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
+  if pretrained is not None:
+    settings = pretrained_settings['cafferesnet101'][pretrained]
+    assert (
+        num_classes == settings['num_classes']
+    ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+    model.load_state_dict(model_zoo.load_url(settings['url']))
+    model.input_space = settings['input_space']
+    model.input_size = settings['input_size']
+    model.input_range = settings['input_range']
+    model.mean = settings['mean']
+    model.std = settings['std']
+  return model

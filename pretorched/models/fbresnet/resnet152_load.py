@@ -130,12 +130,9 @@ class ResNet(nn.Module):
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
-        layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers = [block(self.inplanes, planes, stride, downsample)]
         self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes))
-
+        layers.extend(block(self.inplanes, planes) for _ in range(1, blocks))
         return nn.Sequential(*layers)
 
     def forward(self, x):
@@ -224,7 +221,7 @@ netparams = torchfile.load('data/resnet152/netparams.t7')
 #import ipdb; ipdb.set_trace()
 netoutputs = []
 for i in range(1, 12):
-    path = 'data/resnet152/output{}.t7'.format(i)
+    path = f'data/resnet152/output{i}.t7'
     out = load_lua(path)
     #print(out.size())
     if out.dim()==4:
@@ -238,14 +235,11 @@ import collections
 s = collections.OrderedDict()
 
 
-i=0
-for key in state_dict.keys():
+for i, key in enumerate(state_dict.keys()):
     new = torch.from_numpy(netparams[i])
     s[key] = new
     if s[key].dim() == 4:
         pass#s[key].transpose_(2,3)
-    i += 1
-
 net.load_state_dict(s)
 
 net.conv1.register_forward_hook(lambda self, input, output: \

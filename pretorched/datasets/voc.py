@@ -27,8 +27,8 @@ urls = {
 
 
 def read_image_label(file):
-    print('[dataset] read ' + file)
-    data = dict()
+    print(f'[dataset] read {file}')
+    data = {}
     with open(file, 'r') as f:
         for line in f:
             tmp = line.split(' ')
@@ -42,20 +42,19 @@ def read_image_label(file):
 
 def read_object_labels(root, dataset, set):
     path_labels = os.path.join(root, 'VOCdevkit', dataset, 'ImageSets', 'Main')
-    labeled_data = dict()
+    labeled_data = {}
     num_classes = len(object_categories)
 
     for i in range(num_classes):
-        file = os.path.join(path_labels, object_categories[i] + '_' + set + '.txt')
+        file = os.path.join(path_labels, f'{object_categories[i]}_{set}.txt')
         data = read_image_label(file)
 
-        if i == 0:
-            for (name, label) in data.items():
+        for name, label in data.items():
+            if i == 0:
                 labels = np.zeros(num_classes)
                 labels[i] = label
                 labeled_data[name] = labels
-        else:
-            for (name, label) in data.items():
+            else:
                 labeled_data[name][i] = label
 
     return labeled_data
@@ -63,7 +62,7 @@ def read_object_labels(root, dataset, set):
 
 def write_object_labels_csv(file, labeled_data):
     # write a csv file
-    print('[dataset] write file %s' % file)
+    print(f'[dataset] write file {file}')
     with open(file, 'w') as csvfile:
         fieldnames = ['name']
         fieldnames.extend(object_categories)
@@ -85,8 +84,7 @@ def read_object_labels_csv(file, header=True):
     print('[dataset] read', file)
     with open(file, 'r') as f:
         reader = csv.reader(f)
-        rownum = 0
-        for row in reader:
+        for rownum, row in enumerate(reader):
             if header and rownum == 0:
                 header = row
             else:
@@ -97,17 +95,15 @@ def read_object_labels_csv(file, header=True):
                 labels = torch.from_numpy(labels)
                 item = (name, labels)
                 images.append(item)
-            rownum += 1
     return images
 
 
 def find_images_classification(root, dataset, set):
     path_labels = os.path.join(root, 'VOCdevkit', dataset, 'ImageSets', 'Main')
     images = []
-    file = os.path.join(path_labels, set + '.txt')
+    file = os.path.join(path_labels, f'{set}.txt')
     with open(file, 'r') as f:
-        for line in f:
-            images.append(line)
+        images.extend(iter(f))
     return images
 
 
@@ -130,7 +126,7 @@ def download_voc2007(root):
         cached_file = os.path.join(tmpdir, filename)
 
         if not os.path.exists(cached_file):
-            print('Downloading: "{}" to {}\n'.format(urls['devkit'], cached_file))
+            print(f"""Downloading: "{urls['devkit']}" to {cached_file}\n""")
             utils.download_url(urls['devkit'], cached_file)
 
         # extract file
@@ -152,7 +148,7 @@ def download_voc2007(root):
         cached_file = os.path.join(tmpdir, filename)
 
         if not os.path.exists(cached_file):
-            print('Downloading: "{}" to {}\n'.format(urls['trainval_2007'], cached_file))
+            print(f"""Downloading: "{urls['trainval_2007']}" to {cached_file}\n""")
             utils.download_url(urls['trainval_2007'], cached_file)
 
         # extract file
@@ -175,7 +171,7 @@ def download_voc2007(root):
         cached_file = os.path.join(tmpdir, filename)
 
         if not os.path.exists(cached_file):
-            print('Downloading: "{}" to {}\n'.format(urls['test_images_2007'], cached_file))
+            print(f"""Downloading: "{urls['test_images_2007']}" to {cached_file}\n""")
             utils.download_url(urls['test_images_2007'], cached_file)
 
         # extract file
@@ -198,7 +194,7 @@ def download_voc2007(root):
         cached_file = os.path.join(tmpdir, filename)
 
         if not os.path.exists(cached_file):
-            print('Downloading: "{}" to {}\n'.format(urls['test_anno_2007'], cached_file))
+            print(f"""Downloading: "{urls['test_anno_2007']}" to {cached_file}\n""")
             utils.download_url(urls['test_anno_2007'], cached_file)
 
         # extract file
@@ -228,7 +224,7 @@ class Voc2007Classification(data.Dataset):
         # define path of csv file
         path_csv = os.path.join(self.root, 'files', 'VOC2007')
         # define filename of csv file
-        file_csv = os.path.join(path_csv, 'classification_' + set + '.csv')
+        file_csv = os.path.join(path_csv, f'classification_{set}.csv')
 
         # create the csv file if necessary
         if not os.path.exists(file_csv):
@@ -247,7 +243,7 @@ class Voc2007Classification(data.Dataset):
 
     def __getitem__(self, index):
         path, target = self.images[index]
-        img = Image.open(os.path.join(self.path_images, path + '.jpg')).convert('RGB')
+        img = Image.open(os.path.join(self.path_images, f'{path}.jpg')).convert('RGB')
         if self.transform is not None:
             img = self.transform(img)
         if self.target_transform is not None:

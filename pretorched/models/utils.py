@@ -19,9 +19,7 @@ class SizeEstimator(object):
         for i in range(1, len(mods)):
             m = mods[i]
             p = list(m.parameters())
-            for j in range(len(p)):
-                sizes.append(np.array(p[j].size()))
-
+            sizes.extend(np.array(item.size()) for item in p)
         self.param_sizes = sizes
         return
 

@@ -20,13 +20,7 @@ def load_imagenet_classes(path_synsets='data/imagenet_synsets.txt',
 
     class_id_to_key = [x.strip() for x in class_id_to_key]
 
-    cid_to_cname = []
-    for i in range(len(class_id_to_key)):
-        key = class_id_to_key[i]
-        cname = key_to_classname[key]
-        cid_to_cname.append(cname)
-
-    return cid_to_cname
+    return [key_to_classname[item] for item in class_id_to_key]
 
 
 class Warp(object):

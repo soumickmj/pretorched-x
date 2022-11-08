@@ -76,11 +76,8 @@ for model_name in ['inceptionv3']:
     means[model_name] = [0.5, 0.5, 0.5]
     stds[model_name] = [0.5, 0.5, 0.5]
 
-pretrained_settings = {}
-
-for model_name in __all__:
-
-    pretrained_settings[model_name] = {
+pretrained_settings = {
+    model_name: {
         'imagenet': {
             'url': model_urls[model_name],
             'input_space': 'RGB',
@@ -88,9 +85,12 @@ for model_name in __all__:
             'input_range': [0, 1],
             'mean': means[model_name],
             'std': stds[model_name],
-            'num_classes': 1000
+            'num_classes': 1000,
         }
     }
+    for model_name in __all__
+}
+
 
 # Add Moments pretrained model.
 pretrained_settings['resnet50'].update({
@@ -156,8 +156,10 @@ for model_name, url in places365_resnet_urls.items():
 
 
 def load_pretrained(model, num_classes, settings):
-    assert num_classes == settings['num_classes'], \
-        "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+    assert (
+        num_classes == settings['num_classes']
+    ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
     model.load_state_dict(model_zoo.load_url(settings['url']))
     model.input_space = settings['input_space']
     model.input_size = settings['input_size']
@@ -178,10 +180,9 @@ def inflate_pretrained(model, num_classes, settings):
     weights = model_zoo.load_url(settings['url'])
     for x in weights:
         for y in ws:
-            if x == y:
-                if weights[x].shape != ws[y].shape:
-                    n = weights[x].unsqueeze(2).expand_as(ws[y])
-                    weights[x] = n
+            if x == y and weights[x].shape != ws[y].shape:
+                n = weights[x].unsqueeze(2).expand_as(ws[y])
+                weights[x] = n
     model.load_state_dict(weights)
     model.input_space = settings['input_space']
     model.input_size = settings['input_size']
@@ -289,9 +290,8 @@ def densenet121(num_classes=1000, pretrained='imagenet'):
             r'^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$')
         state_dict = model_zoo.load_url(settings['url'])
         for key in list(state_dict.keys()):
-            res = pattern.match(key)
-            if res:
-                new_key = res.group(1) + res.group(2)
+            if res := pattern.match(key):
+                new_key = res[1] + res[2]
                 state_dict[new_key] = state_dict[key]
                 del state_dict[key]
         model.load_state_dict(state_dict)
@@ -314,9 +314,8 @@ def densenet169(num_classes=1000, pretrained='imagenet'):
             r'^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$')
         state_dict = model_zoo.load_url(settings['url'])
         for key in list(state_dict.keys()):
-            res = pattern.match(key)
-            if res:
-                new_key = res.group(1) + res.group(2)
+            if res := pattern.match(key):
+                new_key = res[1] + res[2]
                 state_dict[new_key] = state_dict[key]
                 del state_dict[key]
         model.load_state_dict(state_dict)
@@ -339,9 +338,8 @@ def densenet201(num_classes=1000, pretrained='imagenet'):
             r'^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$')
         state_dict = model_zoo.load_url(settings['url'])
         for key in list(state_dict.keys()):
-            res = pattern.match(key)
-            if res:
-                new_key = res.group(1) + res.group(2)
+            if res := pattern.match(key):
+                new_key = res[1] + res[2]
                 state_dict[new_key] = state_dict[key]
                 del state_dict[key]
         model.load_state_dict(state_dict)
@@ -364,9 +362,8 @@ def densenet161(num_classes=1000, pretrained='imagenet'):
             r'^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$')
         state_dict = model_zoo.load_url(settings['url'])
         for key in list(state_dict.keys()):
-            res = pattern.match(key)
-            if res:
-                new_key = res.group(1) + res.group(2)
+            if res := pattern.match(key):
+                new_key = res[1] + res[2]
                 state_dict[new_key] = state_dict[key]
                 del state_dict[key]
         model.load_state_dict(state_dict)

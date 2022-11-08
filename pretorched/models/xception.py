@@ -75,20 +75,39 @@ class Block(nn.Module):
 
         filters=in_filters
         if grow_first:
-            rep.append(self.relu)
-            rep.append(SeparableConv2d(in_filters,out_filters,3,stride=1,padding=1,bias=False))
-            rep.append(nn.BatchNorm2d(out_filters))
+            rep.extend(
+                (
+                    self.relu,
+                    SeparableConv2d(
+                        in_filters, out_filters, 3, stride=1, padding=1, bias=False
+                    ),
+                    nn.BatchNorm2d(out_filters),
+                )
+            )
+
             filters = out_filters
 
-        for i in range(reps-1):
-            rep.append(self.relu)
-            rep.append(SeparableConv2d(filters,filters,3,stride=1,padding=1,bias=False))
-            rep.append(nn.BatchNorm2d(filters))
+        for _ in range(reps-1):
+            rep.extend(
+                (
+                    self.relu,
+                    SeparableConv2d(
+                        filters, filters, 3, stride=1, padding=1, bias=False
+                    ),
+                    nn.BatchNorm2d(filters),
+                )
+            )
 
         if not grow_first:
-            rep.append(self.relu)
-            rep.append(SeparableConv2d(in_filters,out_filters,3,stride=1,padding=1,bias=False))
-            rep.append(nn.BatchNorm2d(out_filters))
+            rep.extend(
+                (
+                    self.relu,
+                    SeparableConv2d(
+                        in_filters, out_filters, 3, stride=1, padding=1, bias=False
+                    ),
+                    nn.BatchNorm2d(out_filters),
+                )
+            )
 
         if not start_with_relu:
             rep = rep[1:]
@@ -216,8 +235,10 @@ def xception(num_classes=1000, pretrained='imagenet'):
     model = Xception(num_classes=num_classes)
     if pretrained:
         settings = pretrained_settings['xception'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        assert (
+            num_classes == settings['num_classes']
+        ), f"num_classes should be {settings['num_classes']}, but is {num_classes}"
+
 
         model = Xception(num_classes=num_classes)
         model.load_state_dict(model_zoo.load_url(settings['url']))

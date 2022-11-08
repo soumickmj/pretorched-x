@@ -66,9 +66,9 @@ def main():
     args = parser.parse_args()
 
     # create model
-    print("=> creating model '{}'".format(args.arch))
+    print(f"=> creating model '{args.arch}'")
     if args.pretrained.lower() not in ['false', 'none', 'not', 'no', '0']:
-        print("=> using pre-trained parameters '{}'".format(args.pretrained))
+        print(f"=> using pre-trained parameters '{args.pretrained}'")
         model = pretrainedmodels.__dict__[args.arch](num_classes=1000,
                                                      pretrained=args.pretrained)
     else:
@@ -77,15 +77,14 @@ def main():
     # optionally resume from a checkpoint
     if args.resume:
         if os.path.isfile(args.resume):
-            print("=> loading checkpoint '{}'".format(args.resume))
+            print(f"=> loading checkpoint '{args.resume}'")
             checkpoint = torch.load(args.resume)
             args.start_epoch = checkpoint['epoch']
             best_prec1 = checkpoint['best_prec1']
             model.load_state_dict(checkpoint['state_dict'])
-            print("=> loaded checkpoint '{}' (epoch {})"
-                  .format(args.resume, checkpoint['epoch']))
+            print(f"=> loaded checkpoint '{args.resume}' (epoch {checkpoint['epoch']})")
         else:
-            print("=> no checkpoint found at '{}'".format(args.resume))
+            print(f"=> no checkpoint found at '{args.resume}'")
 
     cudnn.benchmark = True
 
@@ -111,9 +110,10 @@ def main():
     #     scale = 0.875
     scale = 0.875
 
-    print('Images transformed from size {} to {}'.format(
-        int(round(max(model.input_size) / scale)),
-        model.input_size))
+    print(
+        f'Images transformed from size {int(round(max(model.input_size) / scale))} to {model.input_size}'
+    )
+
 
     val_tf = pretrainedmodels.utils.TransformImage(
         model,

@@ -112,44 +112,37 @@ class R2Plus1D(resnet3D.ResNet3D):
 
 def r2plus1d10(**kwargs):
     """Constructs a ResNet-18 model."""
-    model = R2Plus1D(BasicBlock, [1, 1, 1, 1], **kwargs)
-    return model
+    return R2Plus1D(BasicBlock, [1, 1, 1, 1], **kwargs)
 
 
 def r2plus1d18(**kwargs):
     """Constructs a R2Plus1D-18 model."""
-    model = R2Plus1D(BasicBlock, [2, 2, 2, 2], **kwargs)
-    return model
+    return R2Plus1D(BasicBlock, [2, 2, 2, 2], **kwargs)
 
 
 def r2plus1d34(**kwargs):
     """Constructs a R2Plus1D-34 model."""
-    model = R2Plus1D(BasicBlock, [3, 4, 6, 3], **kwargs)
-    return model
+    return R2Plus1D(BasicBlock, [3, 4, 6, 3], **kwargs)
 
 
 def r2plus1d50(**kwargs):
     """Constructs a R2Plus1D-50 model."""
-    model = R2Plus1D(Bottleneck, [3, 4, 6, 3], **kwargs)
-    return model
+    return R2Plus1D(Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
 def r2plus1d101(**kwargs):
     """Constructs a R2Plus1D-101 model."""
-    model = R2Plus1D(Bottleneck, [3, 4, 23, 3], **kwargs)
-    return model
+    return R2Plus1D(Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
 def r2plus1d152(**kwargs):
     """Constructs a R2Plus1D-101 model."""
-    model = R2Plus1D(Bottleneck, [3, 8, 36, 3], **kwargs)
-    return model
+    return R2Plus1D(Bottleneck, [3, 8, 36, 3], **kwargs)
 
 
 def r2plus1d200(**kwargs):
     """Constructs a R2Plus1D-200 model."""
-    model = R2Plus1D(Bottleneck, [3, 24, 36, 3], **kwargs)
-    return model
+    return R2Plus1D(Bottleneck, [3, 24, 36, 3], **kwargs)
 
 
 if __name__ == '__main__':
